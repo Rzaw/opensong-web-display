@@ -1,0 +1,57 @@
+<script src="/scripts/socket.io.js"></script>
+<script>
+  var socket = io("<%- sockAddress %>");
+  const hidden = "hidden";
+  const empty = "";
+  var song = $("#song");
+  var scripture = $("#scripture");
+  const duration = 450;
+
+  socket.on("formOpenSong", function (DataFromNode) {
+    if (DataFromNode.type == "song") DisplaySong(DataFromNode);
+    if (DataFromNode.type == "scripture") DisplayScripture(DataFromNode);
+    if (DataFromNode.type == "blank") DisplayBlank();
+  });
+
+  function DisplayScripture(data) {
+    FadeOut(song);
+
+    scripture.fadeOut(duration, function () {
+      $(this).find("#verse").text(data.verse);
+      $(this).find("#reference").text(data.reference);
+      if (data.verse !== undefined && data.verse !== empty) {
+        $(this).fadeIn(duration);
+      }
+    });
+  }
+
+  function DisplaySong(data) {
+    FadeOut(scripture);
+
+    song.fadeOut(duration, function () {
+      $(this).find("#songLyrics").text(data.lyric);
+      if (data.lyric !== undefined && data.lyric !== empty) {
+        $(this).fadeIn(duration);
+      }
+    });
+  }
+
+  function DisplayBlank() {
+    song.fadeOut(duration, function () {
+      $(this).find("#songLyrics").text(empty);
+    });
+
+    scripture.fadeOut(duration, function () {
+      $(this).find("#verse").text(empty);
+      $(this).find("#reference").text(empty);
+    });
+  }
+
+  function FadeOut(selector) {
+    $(selector).fadeOut(duration);
+  }
+
+  function FadeIn(selector) {
+    $(selector).fadeIn(duration);
+  }
+</script>

@@ -1,0 +1,64 @@
+#song {
+  background: black;
+  position: absolute;
+  bottom: 50px;
+  text-align: center;
+  right: 250px;
+  left: 250px;
+  text-transform: uppercase;
+  color: white;
+}
+
+#songLyrics {
+  font-size: 40px;
+  letter-spacing: 4px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+#debugger {
+  color: red;
+  font-size: 62px;
+  font-weight: bold;
+}
+
+#verse {
+  padding-top: 17px;
+  padding-left: 30px;
+  padding-right: 30px;
+}
+
+#scripture {
+  font-size: 40px;
+  font-weight: light;
+  background: antiquewhite;
+  margin-left: 50px;
+  margin-right: 50px;
+  position: absolute;
+  bottom: 50px;
+  border-bottom: 5px solid burlywood;
+  right: 0px;
+}
+
+#reference,
+#version {
+  font-size: 38px;
+  font-weight: bold;
+}
+
+#where {
+  background-color: burlywood;
+  text-align: right;
+  width: max-content;
+  position: absolute;
+  right: 20px;
+  bottom: -40px;
+  padding: 5px;
+  padding-left: 15px;
+  padding-right: 10px;
+  border-radius: 0px 0px 10px 10px;
+}
+
+body {
+  background: #ffffff00;
+}

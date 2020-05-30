@@ -1,0 +1,60 @@
+.serverInfo {
+    height: 80vh;
+    overflow-y: scroll;
+    display: block;
+}
+
+.opensong {
+    margin: 0;
+    padding: 2px 10px;
+}
+
+.server-info {
+    background: #afaaff;
+    color:#272727;
+    border: 3px solid #ff3939;
+}
+
+.server-error {
+    border: 3px solid #ff3939;
+    background: #aa1212;
+    color: #ececec;
+}
+
+.server-debug {
+    border: 3px solid #ff3939;
+    background: #e6e6e6;
+    color: #272727;
+}
+
+.opensong-info {
+    background: #afaaff;
+    color:#272727;
+}
+
+.opensong-debug {
+    background: #e6e6e6;
+    color: #272727;
+}
+
+.opensong-error {
+    background: #aa1212;
+    color: #ececec;
+}
+
+.header {
+    font-weight: bold;
+    text-transform: uppercase;
+    text-indent: 1rem;
+    letter-spacing: 1px;
+}
+
+.data{
+    margin: 0;
+    padding: 0;
+    /* display: inline-block; */
+}
+
+.attribute {
+    font-style: italic;
+}

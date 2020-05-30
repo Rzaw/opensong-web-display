@@ -1,0 +1,129 @@
+<script src="/scripts/socket.io.js"></script>
+<script>
+  var socket = io("<%- sockAddress %>");
+  const Hidden = "hidden";
+
+  $(".start-client").on("click", function () {
+    $.ajax({
+      method: "POST",
+      url: "/setup/start",
+    });
+  });
+
+  $(".clear-screen").on("click", function () {
+    $.ajax({
+      method: "POST",
+      url: "/setup/clearScreen",
+    });
+  });
+
+  $(".control-button").on("click", function () {
+    let action = $(this).attr("id");
+    $.ajax({
+      method: "POST",
+      data: { webAction: action },
+      url: "/opensong/slide-control",
+    });
+  });
+
+  socket.on("logsFromServer", function (log) {
+    // console.log(log);
+    if (log.OpenSongData === undefined) {
+      LogServer(log);
+    } else {
+      if (log.OpenSongData.Action == "slide") {
+        LogSlide(log);
+      }
+
+      if (log.OpenSongData.Action == "status") {
+        LogStatus(log);
+      }
+    }
+  });
+
+  function LogServer(log) {
+    var output = $(".serverInfo");
+    var type = log.Type;
+    var time = new Date(log.Time);
+
+    let alert = `
+        <div class="opensong server-${type} mb-1">
+          <p class="data header">${GetFormattedTime(time)} Server message</p>
+          <p class="data"><span class="attribute">Message: </span>${
+            log.Text
+          }</p>`;
+
+    if (log.Error != undefined) {
+      let error = `<p class="data"><span class="attribute">Error: </span>${log.Error}</p>`;
+      alert = alert + error;
+    }
+
+    let ending = `</div>`;
+
+    output.html(alert + ending + output.html());
+  }
+
+  function LogSlide(log) {
+    var output = $(".serverInfo");
+    var type = log.Type;
+    var openType = log.OpenSongData.Slide.type;
+    var slide = log.OpenSongData.Slide;
+
+    let alert = `
+        <div class="opensong opensong-${type} mb-1">
+        <p class="data header">${GetFormattedTime(
+          new Date(log.Time)
+        )} OpenSong ${log.OpenSongData.Action}</p>
+        <p class="data">${openType}</p>`;
+
+    let alertEnding = "</div>";
+    let slideDetails = "";
+
+    if (openType === "song") {
+      slideDetails = `
+      <p class="data"><span class="attribute">Title: </span>${slide.title}</p>
+      <p class="data"><span class="attribute">Lyrics: </span>${slide.lyric}</p>`;
+    }
+    if (openType === "scripture") {
+      slideDetails = `
+      <p class="data"><span class="attribute">Verse: </span>${slide.verse}</p>
+      <p class="data"><span class="attribute">Reference: </span>${slide.reference}</p>`;
+    }
+
+    output.html(alert + slideDetails + alertEnding + output.html());
+  }
+
+  function LogStatus(log) {
+    var output = $(".serverInfo");
+    var type = log.Type;
+    var time = new Date(log.Time);
+
+    let alert = `
+        <div class="opensong opensong-${type} mb-1">
+            <p class="data header">${GetFormattedTime(time)} OpenSong ${
+      log.OpenSongData.Action
+    }</p>
+            <p class="data"><span class="attribute">Message: </span>${
+              log.Text
+            }</p>
+            <p class="data"><span class="attribute">Running: </span>${
+              log.OpenSongData.Running
+            }</p>
+            <p class="data"><span class="attribute">Slide number: </span>${
+              log.OpenSongData.SlideNumber
+            }</p>
+        </div>`;
+
+    output.html(alert + output.html());
+  }
+
+  function GetFormattedTime(time) {
+    return `[${NumberPad(time.getHours())}:${NumberPad(
+      time.getMinutes()
+    )}:${NumberPad(time.getSeconds())}]`;
+  }
+
+  function NumberPad(num) {
+    return `${num < 10 ? "0" + num : num}`;
+  }
+</script>
