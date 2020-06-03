@@ -19,7 +19,8 @@
     scripture.fadeOut(duration, function () {
       $(this).find("#verse").text(data.verse);
       $(this).find("#reference").text(data.reference);
-      if (data.verse !== undefined && data.verse !== empty) {
+      if ((data.verse !== undefined && data.verse !== empty) &&
+          (data.reference !== undefined && data.reference !== empty)) {
         $(this).fadeIn(duration);
       }
     });

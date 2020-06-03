@@ -30,6 +30,9 @@ module.exports = () => {
     // OpenSong configuration
     if (opConfig !== undefined) {
         // Opensong check
+        if (opConfig.IsLocal){
+            console.warn("Server listens for local Opensong instance!");
+        }
         if (!opConfig.IsLocal && opConfig.Address !== undefined && opConfig.Address !== '' ) {
             openSongWsIp = opConfig.Address;
         }

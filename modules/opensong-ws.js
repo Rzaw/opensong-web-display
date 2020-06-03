@@ -12,46 +12,46 @@ var client = new WebSocketClient();
 client.on("connectFailed", function (error) {
     console.error(`${GetFormattedTime(new Date())} Connection Failed: ${error}`);
     io.LogToSetup(new Log(Date.now(), Type.Error, "Connection Failed", error));
+});
+  
+client.on("connect", function (connection) {
+  // Izvada ja savienojums ir bijis veiksmīgs
+  console.log(`${GetFormattedTime(new Date())} Connection successful`);
+  io.LogToSetup(new Log(Date.now(), Type.Info, "Connection successful"));
+
+  // Priekš kādām OpenSong versijām ir jānosūta abonēšanas pieprasījums
+  connection.sendUTF("/ws/subscribe/presentation");
+
+  // Statusi ko sagaida no OpenSong
+  // Gadījumā ja Opensong ir kādas kļūmes
+  connection.on("error", function (error) {
+    console.error(`${GetFormattedTime(new Date())} An error occurred ${error}`);
+    io.LogToSetup(
+      new Log(Date.now(), Type.Error, "An error occurred", error.message)
+    );
   });
   
-  client.on("connect", function (connection) {
-    // Izvada ja savienojums ir bijis veiksmīgs
-    console.log(`${GetFormattedTime(new Date())} Connection successful`);
-    io.LogToSetup(new Log(Date.now(), Type.Info, "Connection successful"));
-  
-    // Priekš kādām OpenSong versijām ir jānosūta abonēšanas pieprasījums
-    connection.sendUTF("/ws/subscribe/presentation");
-  
-    // Statusi ko sagaida no OpenSong
-    // Gadījumā ja Opensong ir kādas kļūmes
-    connection.on("error", function (error) {
-      console.error(`${GetFormattedTime(new Date())} An error occurred ${error}`);
-      io.LogToSetup(
-        new Log(Date.now(), Type.Error, "An error occurred", error.message)
-      );
-    });
-  
     // Paziņojums par socket slēgšanu.
-    connection.on("close", function () {
-      console.log(`${GetFormattedTime(new Date())} Connection closed.`);
-      io.LogToSetup(new Log(Date.now(), Type.Info, "Connection closed"));
-  
-      // Nosūtīt uz setup lapu ka savienojums ir slēgts un vai vēlas to restartēt.
-    });
+  connection.on("close", function () {
+    console.log(`${GetFormattedTime(new Date())} Connection closed.`);
+    io.LogToSetup(new Log(Date.now(), Type.Info, "Connection closed"));
+
+    // Nosūtīt uz setup lapu ka savienojums ir slēgts un vai vēlas to restartēt.
+  });
   
     // Izmaiņu saņemšana no OpenSong
-    connection.on("message", function (message) {
-      var parsed = undefined;
-  
-      // Parsing XML file
-      parser.parseString(message.utf8Data, function (err, data) {
-        // Ja ir kāda problēma izvada to uz ekrāna.
-        if (err)
-          io.LogToSetup(
-            new Log(Date.now(), Type.Error, "Parsing Error", err.message)
-          );
-        parsed = data;
-      });
+  connection.on("message", function (message) {
+    var parsed = undefined;
+
+    // Parsing XML file
+    parser.parseString(message.utf8Data, function (err, data) {
+      // Ja ir kāda problēma izvada to uz ekrāna.
+      if (err)
+        io.LogToSetup(
+          new Log(Date.now(), Type.Error, "Parsing Error", err.message)
+        );
+      parsed = data;
+    });
   
       try {
         // Jā xml tulks nav spējis pārveidot uz json formātu, tad tiešais
@@ -143,8 +143,15 @@ module.exports = () => {
         client.connect(`ws://${url}:${port}/ws`);
     }
 
+    var stopOpensongWebClient = () => {
+      client.abort();
+      console.info("User closed connection");
+      io.LogToSetup(new Log(Date.now(), Type.Info, "User closed OpenSong connection."))
+    }
+
     return {
         startOpensongWebClient,
+        stopOpensongWebClient,
         getDefault: GetDefault()
     }
 };

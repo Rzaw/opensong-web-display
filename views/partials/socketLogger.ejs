@@ -10,6 +10,13 @@
     });
   });
 
+  $(".stop-client").on("click", function () {
+    $.ajax({
+      method: "POST",
+      url: "/setup/stop",
+    });
+  });
+
   $(".clear-screen").on("click", function () {
     $.ajax({
       method: "POST",

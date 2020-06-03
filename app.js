@@ -40,6 +40,7 @@ app.post("/setup/start", function (req, res) {
 
 app.post("/setup/stop", function (req, res) {
   // Jāsaprot kā apturēt WebSocket
+  opensong.stopOpensongWebClient();
   res.json({ running: false });
 });
 
@@ -92,6 +93,3 @@ app.post("/opensong/slide-control", function (req, res) {
 });
 
 app.listen(config.webServerPort);
-
-// OpenSong izmanto xml kā atbildi, tādēļ ir vajadzīga bibliotēkas, kas palīdzēs konvertēt no xml uz json biblioteku.
-
