@@ -145,6 +145,7 @@ module.exports = () => {
 
     var stopOpensongWebClient = () => {
       client.abort();
+      client.removeAllListeners((event) => console.log(event));
       console.info("User closed connection");
       io.LogToSetup(new Log(Date.now(), Type.Info, "User closed OpenSong connection."))
     }

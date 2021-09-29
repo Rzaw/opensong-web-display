@@ -64,7 +64,9 @@
           </div>
         </div>
       </div>
-      <div class="row"></div>
+      <div class="row">
+        <div class="opensongSet"></div>
+      </div>
       <div class="set"></div>
     </div>
     <div class="col-3">
@@ -78,4 +80,5 @@
 
 <%- include("../partials/bootstrapNjquery") %> 
 <%- include("../partials/socketLogger", { sockAddress: address }) %> 
+<%- include("../partials/socketServiceSet", {sockAddress: address}) %>
 <%- include("../partials/footer") %> 

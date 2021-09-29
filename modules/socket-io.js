@@ -9,8 +9,13 @@ module.exports = () => {
         io.emit("logsFromServer", data);
     };
 
+    var DisplayOpensongSet = function(data) {
+        io.emit("displayOpensongSet", data);
+    };
+
     return {
         SendDataToSocket,
-        LogToSetup
+        LogToSetup,
+        DisplayOpensongSet
     }
 }
