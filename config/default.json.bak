@@ -1,7 +1,7 @@
 {
     "OpensongRemoteConnection": {
         "Port": 8084,
-        "Address": "192.168.8.92",
+        "Address": "192.168.8.91",
         "IsLocal": false
     },
 

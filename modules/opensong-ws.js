@@ -8,6 +8,8 @@ const io = require("./socket-io")();
 var parser = new xml2js.Parser();
 
 var client = new WebSocketClient();
+var clientSet = new WebSocketClient();
+let connectionG;
 
 client.on("connectFailed", function (error) {
     console.error(`${GetFormattedTime(new Date())} Connection Failed: ${error}`);
@@ -19,6 +21,7 @@ client.on("connect", function (connection) {
   console.log(`${GetFormattedTime(new Date())} Connection successful`);
   io.LogToSetup(new Log(Date.now(), Type.Info, "Connection successful"));
 
+  connectionG = connection;
   // Priekš kādām OpenSong versijām ir jānosūta abonēšanas pieprasījums
   connection.sendUTF("/ws/subscribe/presentation");
 
@@ -41,7 +44,7 @@ client.on("connect", function (connection) {
   
     // Izmaiņu saņemšana no OpenSong
   connection.on("message", function (message) {
-    var parsed = undefined;
+    let parsed = undefined;
 
     // Parsing XML file
     parser.parseString(message.utf8Data, function (err, data) {
@@ -64,7 +67,7 @@ client.on("connect", function (connection) {
           // Pārbaude vai ir detalizēts slaids
           if (parsed.response.$.action === "slide") {
             // iegūt datus no slide
-            var result = GatherDataFromSlide(parsed.response.slide);
+            let result = GatherDataFromSlide(parsed.response.slide);
   
             // izvada logu uz .../setup ekrāna
             io.LogToSetup(
@@ -84,7 +87,7 @@ client.on("connect", function (connection) {
             io.SendDataToSocket(result);
           }
           if (parsed.response.$.action === "status") {
-            var openSongData = {};
+            let openSongData = {};
             openSongData["Action"] = parsed.response.$.action;
   
             // Pārbauda vai "running"
@@ -135,7 +138,7 @@ client.on("connect", function (connection) {
 
 module.exports = () => {
 
-    var startOpensongWebClient = (url, port) => {
+    let startOpensongWebClient = (url, port) => {
         console.info(`OpenSong IP: ${url}:${port}`);
         console.info(
             `To see information in browser open http://${config.webServerIp}:${config.webServerPort}`
@@ -143,9 +146,9 @@ module.exports = () => {
         client.connect(`ws://${url}:${port}/ws`);
     }
 
-    var stopOpensongWebClient = () => {
-      client.abort();
-      console.info("User closed connection");
+    let stopOpensongWebClient = () => {
+      client.sendUTF('/ws/unsubscribe/presentation');
+      console.info("User unsubscribed");
       io.LogToSetup(new Log(Date.now(), Type.Info, "User closed OpenSong connection."))
     }
 
@@ -163,8 +166,8 @@ function IsRunning(response) {
     return item.response.presentation[0].slide[0].$.itemnumber;
   }
   function GatherDataFromSlide(slide) {
-    var result = {};
-    var whatItIs = slide[0].$.type;
+    let result = {};
+    let whatItIs = slide[0].$.type;
   
     switch (whatItIs) {
       case "song":
@@ -183,9 +186,9 @@ function IsRunning(response) {
     return result;
   }
   function GetScripture(data) {
-    var scriptureVerse = data[0].slides[0].slide[0].body[0];
-    var scriptureReference = data[0].title[0];
-    var scriptureVersion = data[0].subtitle[0];
+    let scriptureVerse = data[0].slides[0].slide[0].body[0];
+    let scriptureReference = data[0].title[0];
+    let scriptureVersion = data[0].subtitle[0];
   
     return {
       verse: scriptureVerse,
@@ -195,8 +198,8 @@ function IsRunning(response) {
     };
   }
   function GetSong(data) {
-    var songTitle = undefined;
-    var songLyrics = undefined;
+    let songTitle = undefined;
+    let songLyrics = undefined;
   
     songTitle = data[0].title[0];
     songLyrics = data[0].slides[0].slide[0].body[0];

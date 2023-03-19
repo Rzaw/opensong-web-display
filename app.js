@@ -7,6 +7,8 @@ const Log = require("./modules/log");
 const io = require("./modules/socket-io")();
 const opensong = require("./modules/opensong-ws")();
 
+const opensongRest = require("./modules/opensong-rest")
+
 ///// Logging information
 console.info(`Server IP: ${config.webServerIp}:${config.webServerPort}`);
 
@@ -29,10 +31,16 @@ app.get("/setup", function (req, res) {
   res.render("setup/setup", {
     address: `${config.webServerIp}:${config.webServerSocketPort}`,
     ClientStarted: "0",
+    options: {
+      opensongIp: config.openSongWsIp,
+      opensongPort: config.openSongWsPort,
+      serverPort: config.webServerPort,
+    }
   });
 });
 
 app.post("/setup/start", function (req, res) {
+  // jāievieto loģika kas dos saprast vai 
   //console.log(opensong);
   opensong.startOpensongWebClient(config.openSongWsIp, config.openSongWsPort);
   res.json({ running: true });
@@ -52,6 +60,15 @@ app.post("/setup/clearScreen", function (req, res) {
   );
   res.json({ running: true, clearScreen: true });
 });
+
+// app.get("/currentSet", function(req, res){
+  
+//   let result;
+//   // "/presentation/slide/list"
+  
+
+//   res.json();
+// });
 
 app.get("/display", function (req, res) {
   res.render("display/index", { address: `${config.webServerIp}:${config.webServerSocketPort}` });

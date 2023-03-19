@@ -5,7 +5,7 @@
   const empty = "";
   var song = $("#song");
   var scripture = $("#scripture");
-  const duration = 450;
+  const duration = 250;
 
   socket.on("formOpenSong", function (DataFromNode) {
     if (DataFromNode.type == "song") DisplaySong(DataFromNode);
