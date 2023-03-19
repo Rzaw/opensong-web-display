@@ -11,209 +11,214 @@ var client = new WebSocketClient();
 var clientSet = new WebSocketClient();
 let connectionG;
 
-client.on("connectFailed", function (error) {
+client.on("connectFailed", HandleConnectFailed);
+client.on("connect", HandleConnect);
+
+function HandleConnectFailed(error) {
     console.error(`${GetFormattedTime(new Date())} Connection Failed: ${error}`);
     io.LogToSetup(new Log(Date.now(), Type.Error, "Connection Failed", error));
-});
-  
-client.on("connect", function (connection) {
-  // Izvada ja savienojums ir bijis veiksmīgs
-  console.log(`${GetFormattedTime(new Date())} Connection successful`);
-  io.LogToSetup(new Log(Date.now(), Type.Info, "Connection successful"));
+}
 
-  connectionG = connection;
-  // Priekš kādām OpenSong versijām ir jānosūta abonēšanas pieprasījums
-  connection.sendUTF("/ws/subscribe/presentation");
+function HandleConnect(connection) {
+    console.log(`${GetFormattedTime(new Date())} Connection successful`);
+    io.LogToSetup(new Log(Date.now(), Type.Info, "Connection successful"));
 
-  // Statusi ko sagaida no OpenSong
-  // Gadījumā ja Opensong ir kādas kļūmes
-  connection.on("error", function (error) {
+    connectionG = connection;
+    connectionG.sendUTF("/ws/subscribe/presentation");
+
+    connectionG.on("error", HandleError);
+    connectionG.on("close", HandleClose);
+    connectionG.on("message", HandleMessage);
+}
+
+function HandleError(error) {
     console.error(`${GetFormattedTime(new Date())} An error occurred ${error}`);
     io.LogToSetup(
-      new Log(Date.now(), Type.Error, "An error occurred", error.message)
+        new Log(Date.now(), Type.Error, "An error occurred", error.message)
     );
-  });
-  
-    // Paziņojums par socket slēgšanu.
-  connection.on("close", function () {
+}
+
+function HandleClose() {
     console.log(`${GetFormattedTime(new Date())} Connection closed.`);
     io.LogToSetup(new Log(Date.now(), Type.Info, "Connection closed"));
+}
 
-    // Nosūtīt uz setup lapu ka savienojums ir slēgts un vai vēlas to restartēt.
-  });
-  
-    // Izmaiņu saņemšana no OpenSong
-  connection.on("message", function (message) {
-    let parsed = undefined;
-
-    // Parsing XML file
-    parser.parseString(message.utf8Data, function (err, data) {
-      // Ja ir kāda problēma izvada to uz ekrāna.
-      if (err)
-        io.LogToSetup(
-          new Log(Date.now(), Type.Error, "Parsing Error", err.message)
-        );
-      parsed = data;
-    });
-  
-      try {
-        // Jā xml tulks nav spējis pārveidot uz json formātu, tad tiešais
-        // teksts tiek izvadīts uz ekrāna
-        if (parsed !== undefined) {
-          // Lai programma tālāk nedarbotos, pārbaudām vai xml failā ir 'response'
-          if (parsed.response === undefined || parsed.response === null) {
-            return "";
-          }
-          // Pārbaude vai ir detalizēts slaids
-          if (parsed.response.$.action === "slide") {
-            // iegūt datus no slide
-            let result = GatherDataFromSlide(parsed.response.slide);
-  
-            // izvada logu uz .../setup ekrāna
-            io.LogToSetup(
-              new Log(
-                Date.now(),
-                Type.Debug,
-                "Displaying data to screen",
-                undefined,
-                {
-                  Action: parsed.response.$.action,
-                  Slide: result,
-                }
-              )
-            );
-  
-            // Aizūta uz .../display lapu
-            io.SendDataToSocket(result);
-          }
-          if (parsed.response.$.action === "status") {
-            let openSongData = {};
-            openSongData["Action"] = parsed.response.$.action;
-  
-            // Pārbauda vai "running"
-            var running = IsRunning(parsed.response);
-            openSongData["Running"] = running;
-            if (running != "0") {
-              // dabūt item numuru (funkcija)
-              var itemNumber = GetItemNumber(parsed);
-              openSongData["SlideNumber"] = itemNumber;
-              // nosūtīt req uz ws un sagaidīt datus
-              RequestSlideDetails(itemNumber);
+async function parseXml(xmlString) {
+    return new Promise((resolve, reject) => {
+        parser.parseString(xmlString, (err, data) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(data);
             }
-            io.LogToSetup(
-              new Log(
-                Date.now(),
-                Type.Debug,
-                "Requesting slide information from Opensong",
-                undefined,
-                openSongData
-              )
-            );
-          }
-        } else {
-          io.LogToSetup(
-            new Log(
-              Date.now(),
-              Type.Info,
-              `OpenSong responded with: ${message.utf8Data}`
-            )
-          );
-        }
-      } catch (error) {
-        io.LogToSetup(
-          new Log(
-            Date.now(),
-            Type.Error,
-            `Exception while executing set of commands`,
-            error.message
-          )
-        );
-      }
+        });
     });
-  
-    function RequestSlideDetails(slideNumber) {
-      connection.sendUTF(`/presentation/slide/${slideNumber}`);
+}
+
+async function HandleMessage(message) {
+    try {
+        const parsed = await parseXml(message.utf8Data);
+
+        if (parsed && parsed.response) {
+            const action = parsed.response.$.action;
+
+            switch (action) {
+                case "slide":
+                    HandleSlideAction(parsed.response.slide);
+                    break;
+                case "status":
+                    HandleStatusAction(parsed.response);
+                    break;
+                default:
+                    io.LogToSetup(
+                        new Log(
+                            Date.now(),
+                            Type.Info,
+                            `OpenSong responded with: ${message.utf8Data}`
+                        )
+                    );
+            }
+        }
+    } catch (error) {
+        io.LogToSetup(
+            new Log(
+                Date.now(),
+                Type.Error,
+                `Exception while executing set of commands`,
+                error.message
+            )
+        );
     }
-  });
+}
+
+function HandleSlideAction(slide) {
+    const result = GatherDataFromSlide(slide);
+
+    io.LogToSetup(
+        new Log(
+            Date.now(),
+            Type.Debug,
+            "Displaying data to screen",
+            undefined,
+            {
+                Action: "slide",
+                Slide: result,
+            }
+        )
+    );
+
+    io.SendDataToSocket(result);
+}
+
+function HandleStatusAction(response) {
+    const openSongData = {
+        Action: "status",
+        Running: IsRunning(response),
+    };
+
+    if (openSongData.Running != "0") {
+        const itemNumber = GetItemNumber(response);
+        openSongData.SlideNumber = itemNumber;
+        RequestSlideDetails(itemNumber);
+    }
+
+    io.LogToSetup(
+        new Log(
+            Date.now(),
+            Type.Debug,
+            "Requesting slide information from Opensong",
+            undefined,
+            openSongData
+        )
+    );
+}
+
+function RequestSlideDetails(slideNumber) {
+    connectionG.sendUTF(`/presentation/slide/${slideNumber}`);
+}
 
 module.exports = () => {
-
-    let startOpensongWebClient = (url, port) => {
-        console.info(`OpenSong IP: ${url}:${port}`);
-        console.info(
-            `To see information in browser open http://${config.webServerIp}:${config.webServerPort}`
-        );
-        client.connect(`ws://${url}:${port}/ws`);
-    }
-
-    let stopOpensongWebClient = () => {
-      client.sendUTF('/ws/unsubscribe/presentation');
-      console.info("User unsubscribed");
-      io.LogToSetup(new Log(Date.now(), Type.Info, "User closed OpenSong connection."))
-    }
-
     return {
-        startOpensongWebClient,
-        stopOpensongWebClient,
-        getDefault: GetDefault()
-    }
+        startOpensongWebClient: (url, port) => StartOpensongWebClient(url, port),
+        stopOpensongWebClient: () => StopOpensongWebClient(),
+        getDefault: () => GetDefault(),
+    };
 };
 
-function IsRunning(response) {
-    return response.presentation[0].$.running;
-  }
-  function GetItemNumber(item) {
-    return item.response.presentation[0].slide[0].$.itemnumber;
-  }
-  function GatherDataFromSlide(slide) {
+function StartOpensongWebClient(url, port) {
+    console.info(`OpenSong IP: ${url}:${port}`);
+    console.info(
+        `To see information in browser open http://${config.webServerIp}:${config.webServerPort}`
+    );
+    client.connect(`ws://${url}:${port}/ws`);
+}
+
+function StopOpensongWebClient() {
+    connectionG.sendUTF('/ws/unsubscribe/presentation');
+    console.info("User unsubscribed");
+    io.LogToSetup(new Log(Date.now(), Type.Info, "User closed OpenSong connection."));
+}
+
+function GatherDataFromSlide(slide) {
     let result = {};
     let whatItIs = slide[0].$.type;
-  
+
     switch (whatItIs) {
-      case "song":
-        result = GetSong(slide);
-        break;
-      case "scripture":
-        result = GetScripture(slide);
-        break;
-      case "blank":
-        result = GetDefault();
-        break;
-      default:
-        break;
+        case "song":
+            result = GetSong(slide);
+            break;
+        case "scripture":
+            result = GetScripture(slide);
+            break;
+        case "blank":
+            result = GetDefault();
+            break;
+        default:
+            break;
     }
-  
+
     return result;
-  }
-  function GetScripture(data) {
+}
+function GetScripture(data) {
     let scriptureVerse = data[0].slides[0].slide[0].body[0];
     let scriptureReference = data[0].title[0];
     let scriptureVersion = data[0].subtitle[0];
-  
+
     return {
-      verse: scriptureVerse,
-      reference: scriptureReference,
-      version: scriptureVersion,
-      type: "scripture",
+        verse: scriptureVerse,
+        reference: scriptureReference,
+        version: scriptureVersion,
+        type: "scripture",
     };
-  }
-  function GetSong(data) {
+}
+function GetSong(data) {
     let songTitle = undefined;
     let songLyrics = undefined;
-  
+
     songTitle = data[0].title[0];
     songLyrics = data[0].slides[0].slide[0].body[0];
-  
+
     return { title: songTitle, lyric: songLyrics, type: "song" };
-  }
-  function GetDefault() {
+}
+
+function GetDefault() {
     return { type: "blank" };
-  }
-  function GetFormattedTime(time) {
+}
+
+function GetFormattedTime(time) {
     return `[${NumberPad(time.getHours())}:${NumberPad(
-      time.getMinutes()
+        time.getMinutes()
     )}:${NumberPad(time.getSeconds())}]`;
-  }
-  function NumberPad(num) {
+}
+
+function NumberPad(num) {
     return `${num < 10 ? "0" + num : num}`;
-  }
+}
+
+function IsRunning(response) {
+    return response.presentation[0].$.running;
+}
+
+function GetItemNumber(item) {
+    return item.response.presentation[0].slide[0].$.itemnumber;
+}
