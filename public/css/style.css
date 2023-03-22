@@ -39,6 +39,7 @@
   bottom: 60px;
   border-bottom: 5px solid #ff5400;
   right: 0px;
+  z-index: 1000;
 }
 
 #reference,
@@ -53,14 +54,16 @@
   width: max-content;
   position: absolute;
   right: 20px;
-  bottom: -68px;
+  bottom: -60px;
   padding: 5px;
   padding-left: 15px;
   padding-right: 10px;
-  border-right: 5px solid #ff5400;
-  border-radius: 0px 0px 10px 10px;
-  border-bottom: 5px solid #ff5400;
-  border-left: 5px solid #ff5400;
+border-right: 5px solid #ffaa01;
+border-radius: 0px 0px 10px 10px;
+border-bottom: 5px solid #ffaa01;
+border-left: 5px solid #ffaa01;
+z-index: 10;
+box-shadow: 0px 2px 11px #2f3036a8;
 }
 
 body {
