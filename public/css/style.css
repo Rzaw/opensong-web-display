@@ -31,12 +31,13 @@
 #scripture {
   font-size: 40px;
   font-weight: light;
-  background: antiquewhite;
+  color: #2f3036;
+  background: #ebebe9;
   margin-left: 50px;
   margin-right: 50px;
   position: absolute;
-  bottom: 50px;
-  border-bottom: 5px solid burlywood;
+  bottom: 60px;
+  border-bottom: 5px solid #ff5400;
   right: 0px;
 }
 
@@ -47,16 +48,19 @@
 }
 
 #where {
-  background-color: burlywood;
+  background-color: rgba(235,235,233,1);
   text-align: right;
   width: max-content;
   position: absolute;
   right: 20px;
-  bottom: -40px;
+  bottom: -68px;
   padding: 5px;
   padding-left: 15px;
   padding-right: 10px;
+  border-right: 5px solid #ff5400;
   border-radius: 0px 0px 10px 10px;
+  border-bottom: 5px solid #ff5400;
+  border-left: 5px solid #ff5400;
 }
 
 body {

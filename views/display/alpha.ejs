@@ -1,0 +1,18 @@
+<%- include("../partials/header", {title: "OpenSong Display", setupPage: false})
+%>
+<div class="content">
+  <div id="song" style="display: none;">
+    <h1 id="songTitle"></h1>
+    <p id="songLyrics"></p>
+  </div>
+
+  <div id="scripture" style="display: none;">
+    <p id="verse"></p>
+    <h3 id="where">
+      <span id="reference"></span>
+    </h3>
+  </div>
+</div>
+
+<%- include("../partials/bootstrapNjquery") %> <%- include("../partials/socket",
+{ sockAddress: address }) %> <%- include("../partials/footer") %>
