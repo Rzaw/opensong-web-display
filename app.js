@@ -6,11 +6,12 @@ const fetch = require("node-fetch");
 const Log = require("./modules/log");
 const io = require("./modules/socket-io")();
 const opensong = require("./modules/opensong-ws")();
+const logger = require("./modules/logger");
 
 const opensongRest = require("./modules/opensong-rest")
 
 ///// Logging information
-console.info(`Server IP: ${config.webServerIp}:${config.webServerPort}`);
+logger.info(`Server IP: ${config.webServerIp}:${config.webServerPort}`);
 
 app.set("view engine", "ejs");
 app.use(require("body-parser").json());
@@ -41,7 +42,6 @@ app.get("/setup", function (req, res) {
 
 app.post("/setup/start", function (req, res) {
   // jāievieto loģika kas dos saprast vai 
-  //console.log(opensong);
   opensong.startOpensongWebClient(config.openSongWsIp, config.openSongWsPort);
   res.json({ running: true });
 });
@@ -72,6 +72,10 @@ app.post("/setup/clearScreen", function (req, res) {
 
 app.get("/display", function (req, res) {
   res.render("display/index", { address: `${config.webServerIp}:${config.webServerSocketPort}` });
+});
+
+app.get("/display-alpha", function (req, res) {
+  res.render("display/alpha", { address: `${config.webServerIp}:${config.webServerSocketPort}` });
 });
 
 app.post("/opensong/slide-control", function (req, res) {

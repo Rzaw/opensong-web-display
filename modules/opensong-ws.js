@@ -1,9 +1,14 @@
 const WebSocketClient = require("websocket").client;
+const logger = require("./logger");
 const config = require("./config")();
 const xml2js = require("xml2js");
 const Log = require("./log");
 const Type = require("./type");
 const io = require("./socket-io")();
+const presentationActions = require("./../models/opensong/PresentationActions");
+const presentationSlideTypes = require("./../models/opensong/PresentationSlideTypes");
+const PresentationActions = require("./../models/opensong/PresentationActions");
+const PresentationSlideTypes = require("./../models/opensong/PresentationSlideTypes");
 
 var parser = new xml2js.Parser();
 
@@ -15,12 +20,12 @@ client.on("connectFailed", HandleConnectFailed);
 client.on("connect", HandleConnect);
 
 function HandleConnectFailed(error) {
-    console.error(`${GetFormattedTime(new Date())} Connection Failed: ${error}`);
+    logger.error(`${GetFormattedTime(new Date())} Connection Failed: ${error}`);
     io.LogToSetup(new Log(Date.now(), Type.Error, "Connection Failed", error));
 }
 
 function HandleConnect(connection) {
-    console.log(`${GetFormattedTime(new Date())} Connection successful`);
+    logger.info(`${GetFormattedTime(new Date())} Connection successful`);
     io.LogToSetup(new Log(Date.now(), Type.Info, "Connection successful"));
 
     connectionG = connection;
@@ -32,14 +37,14 @@ function HandleConnect(connection) {
 }
 
 function HandleError(error) {
-    console.error(`${GetFormattedTime(new Date())} An error occurred ${error}`);
+    logger.error(`${GetFormattedTime(new Date())} An error occurred ${error}`);
     io.LogToSetup(
         new Log(Date.now(), Type.Error, "An error occurred", error.message)
     );
 }
 
 function HandleClose() {
-    console.log(`${GetFormattedTime(new Date())} Connection closed.`);
+    logger.info(`${GetFormattedTime(new Date())} Connection closed.`);
     io.LogToSetup(new Log(Date.now(), Type.Info, "Connection closed"));
 }
 
@@ -63,10 +68,10 @@ async function HandleMessage(message) {
             const action = parsed.response.$.action;
 
             switch (action) {
-                case "slide":
+                case PresentationActions.Slide:
                     HandleSlideAction(parsed.response.slide);
                     break;
-                case "status":
+                case PresentationActions.Status:
                     HandleStatusAction(parsed.response);
                     break;
                 default:
@@ -146,8 +151,8 @@ module.exports = () => {
 };
 
 function StartOpensongWebClient(url, port) {
-    console.info(`OpenSong IP: ${url}:${port}`);
-    console.info(
+    logger.info(`OpenSong IP: ${url}:${port}`);
+    logger.info(
         `To see information in browser open http://${config.webServerIp}:${config.webServerPort}`
     );
     client.connect(`ws://${url}:${port}/ws`);
@@ -155,7 +160,7 @@ function StartOpensongWebClient(url, port) {
 
 function StopOpensongWebClient() {
     connectionG.sendUTF('/ws/unsubscribe/presentation');
-    console.info("User unsubscribed");
+    logger.info("User closed OpenSong connection.");
     io.LogToSetup(new Log(Date.now(), Type.Info, "User closed OpenSong connection."));
 }
 
@@ -164,13 +169,13 @@ function GatherDataFromSlide(slide) {
     let whatItIs = slide[0].$.type;
 
     switch (whatItIs) {
-        case "song":
+        case PresentationSlideTypes.Song:
             result = GetSong(slide);
             break;
-        case "scripture":
+        case PresentationSlideTypes.Scripture:
             result = GetScripture(slide);
             break;
-        case "blank":
+        case PresentationSlideTypes.Blank:
             result = GetDefault();
             break;
         default:
@@ -220,5 +225,5 @@ function IsRunning(response) {
 }
 
 function GetItemNumber(item) {
-    return item.response.presentation[0].slide[0].$.itemnumber;
+    return item.presentation[0].slide[0].$.itemnumber;
 }

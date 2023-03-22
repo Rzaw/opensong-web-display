@@ -17,6 +17,7 @@
     "nodemon": "^2.0.2",
     "socket.io": "^2.3.0",
     "websocket": "^1.0.31",
+    "winston": "^3.8.2",
     "xml2js": "^0.4.23"
   }
 }
