@@ -28,11 +28,15 @@ app.use(
   express.static(__dirname + "/node_modules/@fortawesome/fontawesome-free/")
 );
 
+app.use('/jquery', express.static(__dirname + '/node_modules/jquery/dist/'));
+app.use('/bootstrap', express.static(__dirname + '/node_modules/bootstrap/dist/'));
+
 app.get("/setup", function (req, res) {
   res.render("setup/setup", {
     address: `${config.webServerIp}:${config.webServerSocketPort}`,
     ClientStarted: "0",
     options: {
+      serverIp: config.webServerIp,
       opensongIp: config.openSongWsIp,
       opensongPort: config.openSongWsPort,
       serverPort: config.webServerPort,

@@ -44,6 +44,12 @@
       </div>
       <div class="input-group mb-3">
         <div class="input-group-prepend">
+          <span class="input-group-text" id="opensong-ip-label">Server IP</span>
+        </div>
+        <input type="text" class="form-control" id="server-ip" aria-label="Server IP" aria-describedby="server-ip-label" value="<%= options.serverIp %>" disabled>
+      </div>
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
           <span class="input-group-text" id="server-port-label">Server Port</span>
         </div>
         <input type="text" class="form-control" id="server-port" aria-label="Server Port" aria-describedby="server-port-label" value="<%= options.serverPort %>" disabled>

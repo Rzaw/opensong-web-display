@@ -5,8 +5,6 @@ const xml2js = require("xml2js");
 const Log = require("./log");
 const Type = require("./type");
 const io = require("./socket-io")();
-const presentationActions = require("./../models/opensong/PresentationActions");
-const presentationSlideTypes = require("./../models/opensong/PresentationSlideTypes");
 const PresentationActions = require("./../models/opensong/PresentationActions");
 const PresentationSlideTypes = require("./../models/opensong/PresentationSlideTypes");
 
