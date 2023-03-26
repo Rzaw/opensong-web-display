@@ -1,19 +1,21 @@
 #song {
-  background: black;
+  /* background: black; */
   position: absolute;
   bottom: 50px;
   text-align: center;
-  right: 250px;
-  left: 250px;
+  /* right: 15rem;
+  left: 15rem; */
   text-transform: uppercase;
   color: white;
 }
 
 #songLyrics {
-  font-size: 40px;
+  background: #2a2a2a;
+  font-size: 3rem;
+  font-family: 'CMG Sans Medium';
   letter-spacing: 4px;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding: 1rem;
+  margin: 0rem 10rem;
 }
 
 #debugger {
@@ -33,13 +35,14 @@
   font-weight: light;
   color: #2f3036;
   background: #ebebe9;
-  margin-left: 50px;
-  margin-right: 50px;
+  margin-left: 3rem;
+  margin-right: 3rem;
   position: absolute;
   bottom: 60px;
   border-bottom: 5px solid #ff5400;
   right: 0px;
   z-index: 1000;
+  font-family: 'CMG Sans Medium Cn';
 }
 
 #reference,
@@ -64,6 +67,7 @@ border-bottom: 5px solid #ffaa01;
 border-left: 5px solid #ffaa01;
 z-index: 10;
 box-shadow: 0px 2px 11px #2f3036a8;
+font-family: 'CMG Sans Light';
 }
 
 body {
