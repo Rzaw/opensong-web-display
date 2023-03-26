@@ -1,3 +1,5 @@
+const os = require('os');
+
 module.exports = () => {
     const config = require("config");
 
@@ -62,13 +64,6 @@ module.exports = () => {
         }
     }
 
-
-    // console.log({webServerIp,
-    //     webServerPort,
-    //     webServerSocketPort,
-    //     openSongWsIp,
-    //     openSongWsPort});
-
     return {
         webServerIp,
         webServerPort,
@@ -80,13 +75,14 @@ module.exports = () => {
 }
 
 function GetNetworkAddress() {
-    var ip;
-    require("os")
-      .networkInterfaces()
-      ["en0"].forEach((item) => {
-        if (item.family === "IPv4") {
-          ip = item.address;
+    const networkInterfaces = os.networkInterfaces();
+    for (const ifaceName in networkInterfaces) {
+      const iface = networkInterfaces[ifaceName];
+      for (const alias of iface) {
+        if (alias.family === 'IPv4' && !alias.internal) {
+          return alias.address;
         }
-      });
-    return ip;
+      }
+    }
+    return null;
   }
