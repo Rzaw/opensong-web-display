@@ -3,6 +3,9 @@
   var socket = io("<%- sockAddress %>");
   const hidden = "hidden";
   const empty = "";
+  const songLyricElement = $(this).find("#songLyrics");
+  const verseElement = $(this).find("#verse");
+  const referenceElement = $(this).find("#reference");
   var song = $("#song");
   var scripture = $("#scripture");
   const duration = 250;
@@ -17,10 +20,10 @@
     FadeOut(song);
 
     scripture.fadeOut(duration, function () {
-      $(this).find("#verse").text(data.verse);
-      $(this).find("#reference").text(data.reference);
       if ((data.verse !== undefined && data.verse !== empty) &&
           (data.reference !== undefined && data.reference !== empty)) {
+      verseElement.text(data.verse);
+      referenceElement.text(data.reference);
         $(this).fadeIn(duration);
       }
     });
@@ -31,7 +34,6 @@
 
     song.fadeOut(duration, function () {
       if (data.lyric !== undefined && data.lyric !== []) {
-        let songLyricElement = $(this).find("#songLyrics");
         songLyricElement.empty();
         data.lyric.forEach(element => {
           songLyricElement.append(`<p>${element}</p>`);  
@@ -44,12 +46,12 @@
 
   function DisplayBlank() {
     song.fadeOut(duration, function () {
-      $(this).find("#songLyrics").text(empty);
+      songLyricElement.empty()
     });
 
     scripture.fadeOut(duration, function () {
-      $(this).find("#verse").text(empty);
-      $(this).find("#reference").text(empty);
+      verseElement.text(empty);
+      referenceElement.text(empty);
     });
   }
 
