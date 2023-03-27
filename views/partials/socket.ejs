@@ -30,8 +30,13 @@
     FadeOut(scripture);
 
     song.fadeOut(duration, function () {
-      $(this).find("#songLyrics").text(data.lyric);
-      if (data.lyric !== undefined && data.lyric !== empty) {
+      if (data.lyric !== undefined && data.lyric !== []) {
+        let songLyricElement = $(this).find("#songLyrics");
+        songLyricElement.empty();
+        data.lyric.forEach(element => {
+          songLyricElement.append(`<p>${element}</p>`);  
+        });
+        // $(this).find("#songLyrics").text(data.lyric);
         $(this).fadeIn(duration);
       }
     });
