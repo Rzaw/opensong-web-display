@@ -3,12 +3,14 @@ const logger = require("./logger");
 const config = require("./config")();
 const xml2js = require("xml2js");
 const Log = require("./log");
-const Type = require("./type");
 const io = require("./socket-io")();
+const LogType = require("../models/logStructure/logType");
 const PresentationActions = require("./../models/opensong/PresentationActions");
 const PresentationSlideTypes = require("./../models/opensong/PresentationSlideTypes");
 
-var parser = new xml2js.Parser();
+var parser = new xml2js.Parser({
+    preserveWhitespace: true
+});
 
 var client = new WebSocketClient();
 var clientSet = new WebSocketClient();
@@ -19,12 +21,12 @@ client.on("connect", HandleConnect);
 
 function HandleConnectFailed(error) {
     logger.error(`${GetFormattedTime(new Date())} Connection Failed: ${error}`);
-    io.LogToSetup(new Log(Date.now(), Type.Error, "Connection Failed", error));
+    io.LogToSetup(new Log(Date.now(), LogType.Error, "Connection Failed", error));
 }
 
 function HandleConnect(connection) {
     logger.info(`${GetFormattedTime(new Date())} Connection successful`);
-    io.LogToSetup(new Log(Date.now(), Type.Info, "Connection successful"));
+    io.LogToSetup(new Log(Date.now(), LogType.Info, "Connection successful"));
 
     connectionG = connection;
     connectionG.sendUTF("/ws/subscribe/presentation");
@@ -37,13 +39,13 @@ function HandleConnect(connection) {
 function HandleError(error) {
     logger.error(`${GetFormattedTime(new Date())} An error occurred ${error}`);
     io.LogToSetup(
-        new Log(Date.now(), Type.Error, "An error occurred", error.message)
+        new Log(Date.now(), LogType.Error, "An error occurred", error.message)
     );
 }
 
 function HandleClose() {
     logger.info(`${GetFormattedTime(new Date())} Connection closed.`);
-    io.LogToSetup(new Log(Date.now(), Type.Info, "Connection closed"));
+    io.LogToSetup(new Log(Date.now(), LogType.Info, "Connection closed"));
 }
 
 async function parseXml(xmlString) {
@@ -76,7 +78,7 @@ async function HandleMessage(message) {
                     io.LogToSetup(
                         new Log(
                             Date.now(),
-                            Type.Info,
+                            LogType.Info,
                             `OpenSong responded with: ${message.utf8Data}`
                         )
                     );
@@ -86,7 +88,7 @@ async function HandleMessage(message) {
         io.LogToSetup(
             new Log(
                 Date.now(),
-                Type.Error,
+                LogType.Error,
                 `Exception while executing set of commands`,
                 error.message
             )
@@ -100,7 +102,7 @@ function HandleSlideAction(slide) {
     io.LogToSetup(
         new Log(
             Date.now(),
-            Type.Debug,
+            LogType.Debug,
             "Displaying data to screen",
             undefined,
             {
@@ -128,7 +130,7 @@ function HandleStatusAction(response) {
     io.LogToSetup(
         new Log(
             Date.now(),
-            Type.Debug,
+            LogType.Debug,
             "Requesting slide information from Opensong",
             undefined,
             openSongData
@@ -159,7 +161,7 @@ function StartOpensongWebClient(url, port) {
 function StopOpensongWebClient() {
     connectionG.sendUTF('/ws/unsubscribe/presentation');
     logger.info("User closed OpenSong connection.");
-    io.LogToSetup(new Log(Date.now(), Type.Info, "User closed OpenSong connection."));
+    io.LogToSetup(new Log(Date.now(), LogType.Info, "User closed OpenSong connection."));
 }
 
 function GatherDataFromSlide(slide) {
@@ -199,7 +201,7 @@ function GetSong(data) {
     let songLyrics = undefined;
 
     songTitle = data[0].title[0];
-    songLyrics = data[0].slides[0].slide[0].body[0];
+    songLyrics = data[0].slides[0].slide[0].body[0].split('\n');
 
     return { title: songTitle, lyric: songLyrics, type: "song" };
 }
