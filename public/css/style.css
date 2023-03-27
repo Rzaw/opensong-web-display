@@ -7,6 +7,8 @@
   left: 15rem; */
   text-transform: uppercase;
   color: white;
+  right: 0;
+  left: 0;
 }
 
 #songLyrics {
@@ -16,6 +18,10 @@
   letter-spacing: 4px;
   padding: 1rem;
   margin: 0rem 10rem;
+}
+
+#songLyrics > p {
+  margin: 0;
 }
 
 #debugger {
