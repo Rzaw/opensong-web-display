@@ -1,7 +1,7 @@
-const Type = {
+const LogType = {
   Error: "error",
   Info: "info",
   Debug: "debug",
 };
 
-module.exports = Type;
+module.exports = LogType;
