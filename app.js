@@ -40,6 +40,7 @@ app.get("/setup", function (req, res) {
       opensongIp: config.openSongWsIp,
       opensongPort: config.openSongWsPort,
       serverPort: config.webServerPort,
+      
     }
   });
 });

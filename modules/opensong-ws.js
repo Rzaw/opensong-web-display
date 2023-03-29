@@ -1,16 +1,14 @@
 const WebSocketClient = require("websocket").client;
 const logger = require("./logger");
 const config = require("./config")();
-const xml2js = require("xml2js");
 const Log = require("./log");
 const io = require("./socket-io")();
+const xmlParser = require("./xmlUtility");
 const LogType = require("../models/logStructure/logType");
 const PresentationActions = require("./../models/opensong/PresentationActions");
 const PresentationSlideTypes = require("./../models/opensong/PresentationSlideTypes");
 
-var parser = new xml2js.Parser({
-    preserveWhitespace: true
-});
+
 
 var client = new WebSocketClient();
 var clientSet = new WebSocketClient();
@@ -48,21 +46,11 @@ function HandleClose() {
     io.LogToSetup(new Log(Date.now(), LogType.Info, "Connection closed"));
 }
 
-async function parseXml(xmlString) {
-    return new Promise((resolve, reject) => {
-        parser.parseString(xmlString, (err, data) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(data);
-            }
-        });
-    });
-}
+
 
 async function HandleMessage(message) {
     try {
-        const parsed = await parseXml(message.utf8Data);
+        const parsed = await xmlParser(message.utf8Data);
 
         if (parsed && parsed.response) {
             const action = parsed.response.$.action;
