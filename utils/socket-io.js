@@ -1,5 +1,5 @@
-const config = require("./config")();
-const io = require("socket.io")(config.webServerSocketPort);
+const config = require("./../config/server");
+const io = require("socket.io")(config.serverSocket);
 
 module.exports = () => {
     var SendDataToSocket = function(data) {
