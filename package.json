@@ -5,11 +5,13 @@
   "main": "app.js",
   "scripts": {
     "dev": "nodemon app.js",
-    "start": "node app.js"
+    "start": "node app.js",
+    "release": "semantic-release"
   },
   "author": "Matijs Lode",
   "devDependencies": {
-    "nodemon": "^2.0.22"
+    "nodemon": "^2.0.22",
+    "semantic-release": "^21.0.1"
   },
   "license": "MIT",
   "dependencies": {
