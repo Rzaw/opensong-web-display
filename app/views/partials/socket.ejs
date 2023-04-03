@@ -21,9 +21,9 @@
 
     scripture.fadeOut(duration, function () {
       if ((data.verse !== undefined && data.verse !== empty) &&
-          (data.reference !== undefined && data.reference !== empty)) {
-      verseElement.text(data.verse);
-      referenceElement.text(data.reference);
+        (data.reference !== undefined && data.reference !== empty)) {
+        verseElement.text(data.verse);
+        referenceElement.text(data.reference);
         $(this).fadeIn(duration);
       }
     });
@@ -33,12 +33,11 @@
     FadeOut(scripture);
 
     song.fadeOut(duration, function () {
-      if (data.lyric !== undefined && data.lyric !== []) {
+      if (Array.isArray(data.lyric) && data.lyric.every(element => element !== empty)) {
         songLyricElement.empty();
         data.lyric.forEach(element => {
-          songLyricElement.append(`<p>${element}</p>`);  
+          songLyricElement.append(`<p>${element}</p>`);
         });
-        // $(this).find("#songLyrics").text(data.lyric);
         $(this).fadeIn(duration);
       }
     });
