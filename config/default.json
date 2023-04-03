@@ -1,0 +1,17 @@
+{
+    "OpensongRemoteConnection": {
+        "Port": 8082,
+        "Address": "192.168.8.92",
+        "IsLocal": false
+    },
+
+    "ServerConfiguration": {
+        "PageConfig": {
+            "Port": 8088
+        },
+
+        "SocketIO": {
+            "Port": 8001
+        }
+    }
+}
