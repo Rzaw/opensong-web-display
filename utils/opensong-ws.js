@@ -1,12 +1,12 @@
 const WebSocketClient = require("websocket").client;
 const logger = require("./logger");
-const config = require("./config")();
-const Log = require("./log");
+const config = require("./../config/server");
+const Log = require("../app/models/log");
 const io = require("./socket-io")();
 const xmlParser = require("./xmlUtility");
-const LogType = require("../models/logStructure/logType");
-const PresentationActions = require("./../models/opensong/PresentationActions");
-const PresentationSlideTypes = require("./../models/opensong/PresentationSlideTypes");
+const LogType = require("../app/models/logType");
+const PresentationActions = require("../app/models/PresentationActions");
+const PresentationSlideTypes = require("../app/models/PresentationSlideTypes");
 
 
 
@@ -141,7 +141,7 @@ module.exports = () => {
 function StartOpensongWebClient(url, port) {
     logger.info(`OpenSong IP: ${url}:${port}`);
     logger.info(
-        `To see information in browser open http://${config.webServerIp}:${config.webServerPort}`
+        `To see information in browser open http://${config.serverAddress}:${config.serverPort}`
     );
     client.connect(`ws://${url}:${port}/ws`);
 }
